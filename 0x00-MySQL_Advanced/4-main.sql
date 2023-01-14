@@ -1,10 +1,9 @@
--- Show and compute average score
+-- Show and compute average weighted score
 SELECT * FROM users;
+SELECT * FROM projects;
 SELECT * FROM corrections;
 
-SELECT "--";
-CALL ComputeAverageScoreForUser((SELECT id FROM users WHERE name = "Jeanne"));
-CALL ComputeAverageScoreForUser((SELECT id FROM users WHERE name = "Bob"));
+CALL ComputeAverageWeightedScoreForUser((SELECT id FROM users WHERE name = "Jeanne"));
 
 SELECT "--";
 SELECT * FROM users;
