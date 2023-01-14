@@ -1,11 +1,11 @@
 -- Calculates Students weighed average
 -- creates the stored procedure
 
-DELIMITER &&
 DROP PROCEDURE
-IF EXISTS ComputeAverageWeightedScoreForUser;
+IF EXISTS ComputeAverageWeightedScoreForUsers;
+DELIMITER &&
 
-CREATE PROCEDURE ComputeAverageWeightedScoreForUser
+CREATE PROCEDURE ComputeAverageWeightedScoreForUsers
 BEGIN
 DECLARE sumAvg FLOAT;
 SET sumAvg =  (
