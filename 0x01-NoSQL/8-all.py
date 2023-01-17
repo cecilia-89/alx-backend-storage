@@ -2,10 +2,9 @@
 """Module: 8-all"""
 
 
-if __name__ == "__main__":
-    def list_all(mongo_collection):
-        """lists all documents in a collection"""
-        count = mongo_collection.count_documents({})
-        if count == 0:
-            return []
-        return mongo_collection.find()
+def list_all(mongo_collection):
+    """lists all documents in a collection"""
+    count = mongo_collection.count_documents({})
+    if count == 0:
+        return []
+    return mongo_collection.find()
