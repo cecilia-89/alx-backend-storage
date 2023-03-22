@@ -5,6 +5,37 @@ import uuid
 from typing import Callable, Union
 from functools import wraps
 
+
+def replay(method: Callable) -> None:
+    """displays history of calls of a function"""
+
+    funcName = method.__qualname__
+    cache = redis.Redis()
+    funcCalls = cache.get(funcName).decode('utf-8')
+    print('{} was called {} times:'.format(funcName, funcCalls))
+    inputs = cache.lrange(funcName + ':inputs', 0, -1)
+    outputs = cache.lrange(funcName + ':outputs', 0, -1)
+    for input, output in zip(inputs, outputs):
+        print("{}(*{}) -> {}".format(funcName, input.decode('utf-8'),
+                                     output.decode('utf-8')))
+
+
+def call_history(method: Callable) -> Callable:
+    """returns the parameters and results of a function"""
+    funcName = method.__qualname__
+    inputs = funcName + ":inputs"
+    outputs = funcName + ":outputs"
+
+    @wraps(method)
+    def funcHistory(self, *args, **kwargs):
+        self._redis.rpush(inputs, str(args))
+        result = method(self, *args, **kwargs)
+        self._redis.rpush(outputs, str(result))
+        return result
+
+    return funcHistory
+
+
 def count_calls(method: Callable) -> Callable:
     """returns count of method call"""
     @wraps(method)
@@ -15,6 +46,7 @@ def count_calls(method: Callable) -> Callable:
 
     return count
 
+
 class Cache:
     """Redis class"""
 
@@ -23,14 +55,13 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-
     @count_calls
+    @call_history
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """stores the input in redis"""
         key = str(uuid.uuid4())
         self._redis.set(key, data)
         return key
-
 
     def get(self, key: str, fn: Callable = None) -> any:
         """converts data back to the specified format"""
